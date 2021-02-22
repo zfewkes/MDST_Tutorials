@@ -18,16 +18,34 @@ This should load the data, perform preprocessing, and save the output to the dat
 
 """
 from importlib import reload
-import preprocess
+import pandas as pd
+import numpy as np
 
 def remove_percents(df, col):
-    pass
+    df[col] = df[col].str.replace('%', '')
+    df[col] = pd.to_numeric(df[col])
+    return df
 
 def fill_zero_iron(df):
+    df['Iron (% DV)'] = df['Iron (% DV)'].fillna(0)
     return df
     
 def fix_caffeine(df):
+    #data frame of non varies values
+    bads = ['Varies', 'varies']
+    #creating a data frame without the frames with varies
+    good_caff_table = df[~df['Caffeine (mg)'].isin(bads)]
+    #sending this to nummeric so I can take the mean
+    good_caff_table['Caffeine (mg)'] = pd.to_numeric(good_caff_table['Caffeine (mg)'])
+    mean = good_caff_table['Caffeine (mg)'].mean()
+    #replacing all "varies" with the mean
+    df['Caffeine (mg)'] = df['Caffeine (mg)'].str.replace('Varies', str(mean))
+    df['Caffeine (mg)'] = df['Caffeine (mg)'].str.replace('varies', str(mean))
+    #filling the remaining empty values with 0
+    df['Caffeine (mg)'] = df['Caffeine (mg)'].fillna(0)
     return df
+    
+    
 
 def standardize_names(df):
     return df
