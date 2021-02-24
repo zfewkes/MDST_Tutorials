@@ -48,9 +48,23 @@ def fix_caffeine(df):
     
 
 def standardize_names(df):
+    df.columns = df.columns.str.lower()
+
+    def find_parentheses(value):
+        start = value.find("(")
+        end = value.find(")")
+        if start != -1 and end != -1:
+            return value[:start] + value[end + 1:]
+        return value
+    
+    df = df.rename(find_parentheses, axis='columns')
+    df = df.rename(columns=lambda x: x.strip())
+    
     return df
 
 def fix_strings(df, col):
+    df[col] = df[col].str.replace('[^a-zA-Z,^" "]', '')
+    df[col] = df[col].str.lower()
     return df
 
 
@@ -83,10 +97,10 @@ def main():
     # the column names in this data are clear but inconsistent
     # complete the standardize_names function to convert all column names to lower case and remove the units (in parentheses)
     df = standardize_names(df)
-    
+        
     # now that the data is all clean, save your output to the `data` folder as 'starbucks_clean.csv'
     # you will use this file in checkpoint 2
-    
+    df.to_csv(r'../data/starbucks_clean.csv', index = False)
     
 
 if __name__ == "__main__":
